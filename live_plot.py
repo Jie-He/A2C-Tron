@@ -10,6 +10,7 @@ if is_ipython:
 plt.ion()
 
 def plot_durations(episode_durations):
+    plt.tight_layout()
     plt.figure(2)
     plt.clf()
     durations_t = torch.tensor(episode_durations, dtype=torch.float)

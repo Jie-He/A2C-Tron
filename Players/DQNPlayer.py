@@ -20,6 +20,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 STATE_SIZE = 3 * s.MAP_SIZE * s.MAP_SIZE
 
+DIR = os.path.dirname(os.path.join( os.path.dirname( __file__ ))) + '\models'
+EXT = '.hdd'
+SFQ = 10000
+
 def t(x): return torch.tensor(x, device=device).float()
 
 class ActorAdv(nn.Module):
@@ -104,7 +108,7 @@ class DQNPlayer(Player):
         self.acc_reward = 0
 
     def load_weights(self):
-        fname = path.join('models', self.model_name)
+        fname = path.join(DIR, self.model_name + EXT)
         if os.path.exists(fname):
             checkpoint = torch.load(fname)
             self.episode_rewards = checkpoint['episode_rewards']
@@ -117,7 +121,7 @@ class DQNPlayer(Player):
             print('weights not found for', self.model_name)
 
     def save_weights(self):
-        _filename = path.join('models', self.model_name)
+        _filename = path.join(DIR, self.model_name + EXT)
         torch.save({
             'epoch': self.epoch,
             'model_state_dict': self.policy_net.state_dict(),
@@ -166,6 +170,8 @@ class DQNPlayer(Player):
             self.epoch += 1
             just_updated = True
             self.epsilon *= 0.9995
+            if len(self.episode_rewards) % SFQ == 0:
+                self.save_weights()
         else:
             just_updated = False
         if len(self.memory) < n_batch:

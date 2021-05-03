@@ -1,4 +1,7 @@
 import os, random, math, copy
+
+from os import listdir
+from os.path import isfile, join
 import os.path as path
 import numpy as np
 
@@ -16,7 +19,6 @@ STATE_SIZE = 3 * s.MAP_SIZE * s.MAP_SIZE
 
 DIR = os.path.join(os.path.dirname(os.path.join( os.path.dirname( __file__ ))), 'models')
 EXT = '.hdd'
-SFQ = 10000
 
 def t(x): return torch.tensor(x, device=device).float()
 
@@ -106,7 +108,7 @@ class Critic(nn.Module):
         return self.model(X)
 
 class NetPlayer(Player):
-    def __init__(self, model_name='default', logging=False):
+    def __init__(self, model_name='default', logging=False, savef=1000):
         super(NetPlayer, self).__init__()
 
         self.actor = Actor(STATE_SIZE, 4).to(device)
@@ -123,17 +125,29 @@ class NetPlayer(Player):
         ### ============== OLD STUFF ================= ###
         self.model_name = model_name
         self.load_weights()
+        self.SFQ = savef
 
-    def load_weights(self, fname=None):
+    def load_weights(self):
         print('Trying')
-        if fname == None:
-            fname = path.join(DIR, self.model_name + EXT)
-        if not path.isfile(fname):
-            print('Nothing found bro!')
+        ffolder = path.join(DIR, self.model_name)
+        if not os.path.exists(ffolder):
+            os.makedirs(ffolder)
+            print('No folder!')
             return
-        checkpoint = torch.load(fname)
+
+        cpoints = [f for f in listdir(ffolder) if isfile(join(ffolder, f))]
+        cpoints.sort()
+
+        check_point = "nothing"
+        if (len(cpoints) > 0):
+            print('loading', join(ffolder, cpoints[-1]))
+            checkpoint = torch.load(join(ffolder, cpoints[-1]))
+        else:
+            print('No models found!')
+            return
 
         self.episode_rewards = checkpoint['episode_rewards']
+        print('EPOCHS', len(self.episode_rewards))
         self.steps = checkpoint['steps_trained']
         
         self.actor.load_state_dict(checkpoint['actor_state_dict'])
@@ -142,10 +156,14 @@ class NetPlayer(Player):
         self.adam_actor.load_state_dict(checkpoint['actor_optimizer'])
         self.adam_critic.load_state_dict(checkpoint['critic_optimizer'])
         
-        print('Loaded Model:', fname)
+        print('Loaded Model:', cpoints[-1])
     
     def save_weights(self):
-        fname = path.join(DIR, self.model_name + EXT)
+        ffolder = path.join(DIR, self.model_name)
+        if not os.path.exists(ffolder):
+            os.makedirs(ffolder)
+        epochs = len(self.episode_rewards)
+        fname = path.join(ffolder, self.model_name + f"{epochs:08d}" + EXT)
         
         torch.save({
             'episode_rewards'   : self.episode_rewards,
@@ -203,7 +221,7 @@ class NetPlayer(Player):
         if _end_game: 
             self.episode_rewards.append(self.acc_reward)
             self.acc_reward = 0
-            if len(self.episode_rewards) % SFQ == 0:
+            if len(self.episode_rewards) % self.SFQ == 0:
                 self.save_weights()
                 
 

@@ -15,6 +15,11 @@ class Options:
                                  type=int,
                                  default=50000)
         
+        self.parser.add_argument('--savefreq',
+                                 help='Frequency of saving stuff',
+                                 type=int,
+                                 default=50000)
+        
         self.parser.add_argument('--model_name',
                                  help='Name of the model',
                                  type=str,

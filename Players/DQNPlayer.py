@@ -1,4 +1,6 @@
 import os
+from os import listdir
+from os.path import isfile, join
 import os.path as path
 import numpy as np
 import random
@@ -22,7 +24,6 @@ STATE_SIZE = 3 * s.MAP_SIZE * s.MAP_SIZE
 
 DIR = os.path.join(os.path.dirname(os.path.join( os.path.dirname( __file__ ))), 'models')
 EXT = '.hdd'
-SFQ = 10000
 
 def t(x): return torch.tensor(x, device=device).float()
 
@@ -87,7 +88,7 @@ class ReplayMem(object):
         return len(self.memory)
 
 class DQNPlayer(Player):
-    def __init__(self, model_name='DQN_Player'):
+    def __init__(self, model_name='DQN_Player', savef=1000):
         super(DQNPlayer, self).__init__()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print("running on", self.device)
@@ -106,29 +107,48 @@ class DQNPlayer(Player):
         self.epsilon = 0.9
 
         self.acc_reward = 0
+        self.SFQ = savef
 
     def load_weights(self):
-        fname = path.join(DIR, self.model_name + EXT)
-        if os.path.exists(fname):
-            checkpoint = torch.load(fname)
-            self.episode_rewards = checkpoint['episode_rewards']
-            self.policy_net.load_state_dict(checkpoint['model_state_dict'])
-            self.optimiser.load_state_dict(checkpoint['optimizer_state_dict'])
-            self.epoch = checkpoint['epoch']
-            self.epsilon = checkpoint['epsilon']
-            print('Loaded with', self.epoch, 'epochs.')
+        print('Trying')
+        ffolder = path.join(DIR, self.model_name)
+        if not os.path.exists(ffolder):
+            os.makedirs(ffolder)
+            print('No folder!')
+            return
+
+        cpoints = [f for f in listdir(ffolder) if isfile(join(ffolder, f))]
+        cpoints.sort()
+
+        check_point = "nothing"
+        if (len(cpoints) > 0):
+            print('loading', join(ffolder, cpoints[-1]))
+            checkpoint = torch.load(join(ffolder, cpoints[-1]))
         else:
-            print('weights not found for', self.model_name)
+            print('No models found!')
+            return
+
+        self.episode_rewards = checkpoint['episode_rewards']
+        self.policy_net.load_state_dict(checkpoint['model_state_dict'])
+        self.optimiser.load_state_dict(checkpoint['optimizer_state_dict'])
+        self.epoch = checkpoint['epoch']
+        self.epsilon = checkpoint['epsilon']
+        print('Loaded with', self.epoch, 'epochs.')
 
     def save_weights(self):
-        _filename = path.join(DIR, self.model_name + EXT)
+        ffolder = path.join(DIR, self.model_name)
+        if not os.path.exists(ffolder):
+            os.makedirs(ffolder)
+        epochs = len(self.episode_rewards)
+        fname = path.join(ffolder, self.model_name + f"{epochs:08d}" + EXT)
+        
         torch.save({
             'epoch': self.epoch,
             'model_state_dict': self.policy_net.state_dict(),
             'optimizer_state_dict': self.optimiser.state_dict(),
             'episode_rewards'   : self.episode_rewards,
             'epsilon' : self.epsilon,
-        }, _filename)
+        }, fname)
         print('Model saved.')
 
     def preprocess(self, state):
@@ -170,7 +190,7 @@ class DQNPlayer(Player):
             self.epoch += 1
             just_updated = True
             self.epsilon *= 0.9995
-            if len(self.episode_rewards) % SFQ == 0:
+            if len(self.episode_rewards) % self.SFQ == 0:
                 self.save_weights()
         else:
             just_updated = False

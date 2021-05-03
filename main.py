@@ -14,9 +14,9 @@ OPTIONS = OPTIONS.parse()
 def main():
     nplayer0 = None
     if OPTIONS.model_type=='A2C':
-        nplayer0 = NetPlayer(OPTIONS.model_name)
+        nplayer0 = NetPlayer(OPTIONS.model_name, savef=OPTIONS.savefreq)
     elif OPTIONS.model_type=='DQN':
-        nplayer0 = DQNPlayer(OPTIONS.model_name)
+        nplayer0 = DQNPlayer(OPTIONS.model_name, savef=OPTIONS.savefreq)
     else:
         print(OPTIONS.model_type + ' Model not defined!')
         exit()
@@ -25,6 +25,7 @@ def main():
     Game_env = Game(nplayer0, use_gui=OPTIONS.gui, depth=OPTIONS.depth)
     epochs = 0
     k = False
+    print(OPTIONS.epochs)
     while(epochs < OPTIONS.epochs):
         epochs += 1
         k = epochs % 100 == 0
@@ -37,7 +38,7 @@ def main():
 
 #===============================================================================
     ## Evaluation values
-    matches = 1000
+    matches = 1
     wins, draw, loss = 0, 0, 0
     ## Play 1000 games
     for m in range(matches):

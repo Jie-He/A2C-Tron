@@ -20,7 +20,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 STATE_SIZE = 3 * s.MAP_SIZE * s.MAP_SIZE
 
-DIR = os.path.dirname(os.path.join( os.path.dirname( __file__ ))) + '\models'
+DIR = os.path.join(os.path.dirname(os.path.join( os.path.dirname( __file__ ))), 'models')
 EXT = '.hdd'
 SFQ = 10000
 

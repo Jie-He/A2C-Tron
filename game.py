@@ -126,3 +126,4 @@ class Game:
         if ifp:
             print('Game Steps:', f'{game_steps: >4}', 'Winners:', valid, 
                 'Stock Market:', self.players[1].episode_rewards[-1])
+        return valid

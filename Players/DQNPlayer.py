@@ -99,6 +99,8 @@ class DQNPlayer(Player):
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.memory = ReplayMem(10000)
 
+        self.epsilon = 0.9
+
         self.acc_reward = 0
 
     def load_weights(self):
@@ -109,6 +111,7 @@ class DQNPlayer(Player):
             self.policy_net.load_state_dict(checkpoint['model_state_dict'])
             self.optimiser.load_state_dict(checkpoint['optimizer_state_dict'])
             self.epoch = checkpoint['epoch']
+            self.epsilon = checkpoint['epsilon']
             print('Loaded with', self.epoch, 'epochs.')
         else:
             print('weights not found for', self.model_name)
@@ -120,6 +123,7 @@ class DQNPlayer(Player):
             'model_state_dict': self.policy_net.state_dict(),
             'optimizer_state_dict': self.optimiser.state_dict(),
             'episode_rewards'   : self.episode_rewards,
+            'epsilon' : self.epsilon,
         }, _filename)
         print('Model saved.')
 
@@ -130,8 +134,16 @@ class DQNPlayer(Player):
 
     def get_action(self, dstate):
         state = self.preprocess(dstate['net']).unsqueeze(dim=0)
-        pred_v = self.policy_net(state)
-        a = torch.argmax(pred_v, dim=1)
+        with torch.no_grad():
+            pred_v = self.policy_net(state)
+
+        a = None
+
+        if np.random.rand() < self.epsilon:
+            k = np.random.choice(np.arange(4), 1)[0]
+            a = torch.tensor([k]).to(device)
+        else:
+            a = torch.argmax(pred_v, dim=1)
         # v = torch.gather(pred_v, dim=1, a)
 
         self.last_state  = state
@@ -140,7 +152,7 @@ class DQNPlayer(Player):
         return a.item()
 
     def update_reward(self, dstate, reward, end_game):
-        n_batch   = 32
+        n_batch   = 128
         raw_state = self.last_state
         action    = self.last_action
         next_raw_state = dstate
@@ -153,6 +165,7 @@ class DQNPlayer(Player):
             self.acc_reward = 0
             self.epoch += 1
             just_updated = True
+            self.epsilon *= 0.9995
         else:
             just_updated = False
         if len(self.memory) < n_batch:

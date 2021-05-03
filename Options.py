@@ -31,8 +31,6 @@ class Options:
                                  type=int,
                                  default=2)
 
-
-
     def parse(self):
         self.options = self.parser.parse_args()
         return self.options

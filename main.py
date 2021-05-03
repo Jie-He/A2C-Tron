@@ -20,7 +20,8 @@ def main():
     else:
         print(OPTIONS.model_type + ' Model not defined!')
         exit()
-  
+#===============================================================================
+    ## Training
     Game_env = Game(nplayer0, use_gui=OPTIONS.gui, depth=OPTIONS.depth)
     epochs = 0
     k = False
@@ -33,6 +34,24 @@ def main():
             print('[' + current_time + ']', f"{epochs:08d} ", end='')
         Game_env.reset()
         Game_env.play(k)
+
+#===============================================================================
+    ## Evaluation values
+    matches = 1000
+    wins, draw, loss = 0, 0, 0
+    ## Play 1000 games
+    for m in range(matches):
+        Game_env.reset()
+        result = Game_env.play(True)
+        print(f"{m:08d} ", end='')
+        if result[0] == True:       loss += 1
+        if result[1] == True:       wins += 1
+        if result[0] == result[1]:  draw += 1
+    assert (wins + draw + loss) == matches
+    print('Results: ')
+    print('Win  Rate:', "{:.2f}%".format(wins/matches*100))
+    print('Draw Rate:', "{:.2f}%".format(draw/matches*100))
+    print('Loss Rate:', "{:.2f}%".format(loss/matches*100))
 
 if __name__ == "__main__":
     main()

@@ -22,7 +22,7 @@ def main():
         exit()
 #===============================================================================
     ## Training
-    Game_env = Game(nplayer0, use_gui=OPTIONS.gui, depth=OPTIONS.depth)
+    Game_env = Game(nplayer0, use_gui=OPTIONS.gui, depth=OPTIONS.depth, options=OPTIONS)
     epochs = 0
     k = False
     print(OPTIONS.epochs)

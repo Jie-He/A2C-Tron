@@ -9,7 +9,7 @@ from live_plot import plot_durations
 from Players.Player import BotPlayer
 class Game:
 
-    def __init__(self, players, use_gui=False, depth=2):
+    def __init__(self, players, use_gui=False, depth=2, options=None):
         if use_gui:
             self.window = GUI()
         
@@ -26,6 +26,7 @@ class Game:
         print('MAX PENALTY', self.penlty)
         self.pstate = np.zeros((3, self.ssize, self.ssize))
         self.pview  = np.zeros((3, 3))
+        self.opts = options
 
 
     def get_state(self):
@@ -124,6 +125,14 @@ class Game:
         if self.use_gui: 
             plot_durations(self.players[1].episode_rewards)
         if ifp:
-            print('Game Steps:', f'{game_steps: >4}', 'Winners:', valid, 
+           
+            if self.opts.model_type == 'DQN':
+                print('Game Steps:', f'{game_steps: >4}', 'Winners:', valid, 
+                'Stock Market:', self.players[1].episode_rewards[-1],
+                'Epsilon:', "{:.10f}".format(self.players[1].epsilon))
+            else:
+                print('Game Steps:', f'{game_steps: >4}', 'Winners:', valid, 
                 'Stock Market:', self.players[1].episode_rewards[-1])
+
+
         return valid

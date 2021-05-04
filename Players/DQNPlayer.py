@@ -99,7 +99,6 @@ class DQNPlayer(Player):
         self.policy_net = ActorAdv(STATE_SIZE, 4).to(self.device)
         # optimisers
         self.optimiser = optim.Adam(self.policy_net.parameters(), lr=0.00001)
-        self.load_weights()
         self.target_net = ActorAdv(STATE_SIZE, 4).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
         self.memory = ReplayMem(10000)
@@ -108,6 +107,7 @@ class DQNPlayer(Player):
 
         self.acc_reward = 0
         self.SFQ = savef
+        self.load_weights()
 
     def load_weights(self):
         print('Trying')
@@ -189,7 +189,7 @@ class DQNPlayer(Player):
             self.acc_reward = 0
             self.epoch += 1
             just_updated = True
-            self.epsilon *= 0.9995
+            self.epsilon *= 0.99995
             if len(self.episode_rewards) % self.SFQ == 0:
                 self.save_weights()
         else:

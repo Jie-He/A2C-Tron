@@ -129,7 +129,8 @@ class Game:
             if self.opts.model_type == 'DQN':
                 print('Game Steps:', f'{game_steps: >4}', 'Winners:', valid, 
                 'Stock Market:', self.players[1].episode_rewards[-1],
-                'Epsilon:', "{:.10f}".format(self.players[1].epsilon))
+                'Epsilon:', "{:.10f}".format(self.players[1].epsilon),
+                'Decay R:', "{:.10f}".format(self.players[1].decay  ))
             else:
                 print('Game Steps:', f'{game_steps: >4}', 'Winners:', valid, 
                 'Stock Market:', self.players[1].episode_rewards[-1])

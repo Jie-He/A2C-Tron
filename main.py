@@ -16,7 +16,9 @@ def main():
     if OPTIONS.model_type=='A2C':
         nplayer0 = NetPlayer(OPTIONS.model_name, savef=OPTIONS.savefreq)
     elif OPTIONS.model_type=='DQN':
-        nplayer0 = DQNPlayer(OPTIONS.model_name, savef=OPTIONS.savefreq)
+        nplayer0 = DQNPlayer(OPTIONS.model_name, 
+                             savef=OPTIONS.savefreq,
+                             epsdecay=OPTIONS.epsdecay)
     else:
         print(OPTIONS.model_type + ' Model not defined!')
         exit()

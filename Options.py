@@ -36,6 +36,11 @@ class Options:
                                  type=int,
                                  default=2)
 
+        self.parser.add_argument('--epsdecay',
+                                 help='Epsilon decay rate',
+                                 type=float,
+                                 default=0.99995)
+
     def parse(self):
         self.options = self.parser.parse_args()
         return self.options

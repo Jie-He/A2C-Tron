@@ -88,7 +88,7 @@ class ReplayMem(object):
         return len(self.memory)
 
 class DQNPlayer(Player):
-    def __init__(self, model_name='DQN_Player', savef=1000):
+    def __init__(self, model_name='DQN_Player', savef=1000, epsdecay=0.99995):
         super(DQNPlayer, self).__init__()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print("running on", self.device)
@@ -104,6 +104,8 @@ class DQNPlayer(Player):
         self.memory = ReplayMem(10000)
 
         self.epsilon = 0.9
+        print('DECAY', epsdecay)
+        self.decay   = epsdecay
 
         self.acc_reward = 0
         self.SFQ = savef
@@ -133,6 +135,7 @@ class DQNPlayer(Player):
         self.optimiser.load_state_dict(checkpoint['optimizer_state_dict'])
         self.epoch = checkpoint['epoch']
         self.epsilon = checkpoint['epsilon']
+        self.decay   = checkpoint['decay']
         print('Loaded with', self.epoch, 'epochs.')
 
     def save_weights(self):
@@ -147,7 +150,8 @@ class DQNPlayer(Player):
             'model_state_dict': self.policy_net.state_dict(),
             'optimizer_state_dict': self.optimiser.state_dict(),
             'episode_rewards'   : self.episode_rewards,
-            'epsilon' : self.epsilon,
+            'epsilon' : self.epsilon,   
+            'decay'   : self.decay,
         }, fname)
         print('Model saved.')
 
@@ -189,7 +193,7 @@ class DQNPlayer(Player):
             self.acc_reward = 0
             self.epoch += 1
             just_updated = True
-            self.epsilon *= 0.99995
+            self.epsilon *= self.decay
             if len(self.episode_rewards) % self.SFQ == 0:
                 self.save_weights()
         else:

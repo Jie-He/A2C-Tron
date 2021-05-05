@@ -9,9 +9,9 @@ Pytorch, OpenCV (For GUI),
 
 ## Model weights
 We provided the pretrained models weights in the models/ folder.
-    + A2C_2 (Trained with bot depth 2) - 540K episodes trained
-    + A2C_5 (Trained with bot depth 5) - 470K episodes trained
-    + DQN_5 (Trained with bot depth 5) - 100K episodes trained
+ + A2C_2 (Trained with bot depth 2) - 540K episodes trained
+ + A2C_5 (Trained with bot depth 5) - 470K episodes trained
+ + DQN_5 (Trained with bot depth 5) - 100K episodes trained
 
 ## Example training commands:
   ++ CUDA_VISIBLE_DEVICES=ID only when you want to use specific GPU
@@ -30,7 +30,7 @@ We provided the pretrained models weights in the models/ folder.
 
 ## Running with commandline flags (With GUI):
     python main.py --epochs=100 --model_name=A2C_2 --gui=1 --depth=2
-   + Plays 100 games
-   + Loads the latest model from folder A2C_2
+ + Plays 100 games
+ + Loads the latest model from folder A2C_2
 
 ## For more information of the commandline flags, see the options.py file.

@@ -25,12 +25,12 @@ We provided the pretrained models weights in the models/ folder.
     CUDA_VISIBLE_DEVICES=5 python main.py --epochs=500000 --model_name=A2C_5 --depth=5 --savefreq=50000
 
   ### Train DQN with bot of depth 5 and save models in folder "DQN_5"
-  ### Note, need --model_type=DQN flag (Default is A2C)
+  + Note, need --model_type=DQN flag (Default is A2C)
     CUDA_VISIBLE_DEVICES=5 python main.py --epochs=500010 --model_type=DQN --model_name=DQN_5 --depth=5 --savefreq=25000
 
 ## Running with commandline flags (With GUI):
-python main.py --epochs=100 --model_name=A2C_2 --gui=1 --depth=2
-    + Plays 100 games
-    + Loads the latest model from folder A2C_2
+    python main.py --epochs=100 --model_name=A2C_2 --gui=1 --depth=2
+   + Plays 100 games
+   + Loads the latest model from folder A2C_2
 
 ## For more information of the commandline flags, see the options.py file.
